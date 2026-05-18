@@ -1,104 +1,519 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KP Generator</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <style>
-    body { font-family: Arial; background:#f4f6f9; padding:20px; }
-    .card { background:#fff; padding:20px; border-radius:12px; margin-bottom:20px; }
-    table { width:100%; border-collapse:collapse; }
-    td,th { border:1px solid #ddd; padding:8px; }
-    th { background:#2563eb; color:white; }
-    img { width:70px; border-radius:8px; }
-    button { padding:8px 12px; background:#2563eb; color:#fff; border:0; border-radius:8px; cursor:pointer; }
-  </style>
+<title>KP Generator</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:#f3f6fb;
+  color:#1e293b;
+}
+
+.container{
+  display:flex;
+  min-height:100vh;
+}
+
+/* LEFT */
+
+.left{
+  width:70%;
+  padding:30px;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:30px;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:700;
+  color:#2563eb;
+}
+
+.search{
+  width:320px;
+  padding:14px 18px;
+  border:none;
+  border-radius:14px;
+  background:white;
+  box-shadow:0 2px 10px rgba(0,0,0,0.05);
+  font-size:15px;
+  outline:none;
+}
+
+.products{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,0.06);
+  transition:.2s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+}
+
+.card img{
+  width:100%;
+  height:220px;
+  object-fit:contain;
+  background:white;
+  padding:15px;
+}
+
+.card-body{
+  padding:18px;
+}
+
+.title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+.desc{
+  font-size:14px;
+  color:#64748b;
+  min-height:45px;
+  margin-bottom:12px;
+}
+
+.info{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+  font-size:14px;
+}
+
+.price{
+  font-size:20px;
+  font-weight:700;
+  color:#2563eb;
+}
+
+.add-btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.add-btn:hover{
+  background:#1d4ed8;
+}
+
+/* RIGHT */
+
+.right{
+  width:30%;
+  background:white;
+  border-left:1px solid #e2e8f0;
+  padding:30px;
+  display:flex;
+  flex-direction:column;
+}
+
+.kp-title{
+  font-size:24px;
+  font-weight:700;
+  margin-bottom:25px;
+}
+
+.kp-items{
+  flex:1;
+  overflow:auto;
+}
+
+.kp-item{
+  display:flex;
+  gap:12px;
+  padding:12px;
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+  margin-bottom:14px;
+}
+
+.kp-item img{
+  width:70px;
+  height:70px;
+  object-fit:contain;
+  border-radius:10px;
+  background:#f8fafc;
+}
+
+.kp-info{
+  flex:1;
+}
+
+.kp-name{
+  font-weight:600;
+  margin-bottom:5px;
+}
+
+.kp-price{
+  color:#2563eb;
+  font-weight:700;
+}
+
+.remove-btn{
+  margin-top:8px;
+  background:#ef4444;
+  color:white;
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.total{
+  margin-top:20px;
+  font-size:22px;
+  font-weight:700;
+}
+
+.download-btn{
+  margin-top:20px;
+  width:100%;
+  padding:16px;
+  border:none;
+  border-radius:16px;
+  background:#16a34a;
+  color:white;
+  font-size:17px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.download-btn:hover{
+  background:#15803d;
+}
+
+.empty{
+  color:#94a3b8;
+}
+
+@media(max-width:1000px){
+
+  .container{
+    flex-direction:column;
+  }
+
+  .left,
+  .right{
+    width:100%;
+  }
+
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="card">
-  <h2>KP Generator</h2>
+<div class="container">
 
-  <button onclick="downloadDOCX()">📄 Скачать DOCX</button>
+  <!-- LEFT -->
+
+  <div class="left">
+
+    <div class="topbar">
+
+      <div class="logo">
+        KP Generator
+      </div>
+
+      <input
+        type="text"
+        id="search"
+        class="search"
+        placeholder="Пошук товарів..."
+        oninput="searchProducts()"
+      />
+
+    </div>
+
+    <div class="products" id="products"></div>
+
+  </div>
+
+  <!-- RIGHT -->
+
+  <div class="right">
+
+    <div class="kp-title">
+      Комерційна пропозиція
+    </div>
+
+    <div class="kp-items" id="kpItems">
+
+      <div class="empty">
+        Товари ще не додані
+      </div>
+
+    </div>
+
+    <div class="total" id="total">
+      Загалом: 0 UAH
+    </div>
+
+    <button class="download-btn" onclick="downloadDOCX()">
+      📄 Завантажити DOCX
+    </button>
+
+  </div>
+
 </div>
-
-<div class="card">
-  <h3>Товары</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th><th>Фото</th><th>Название</th><th>Страна</th><th>Цена</th><th></th>
-      </tr>
-    </thead>
-    <tbody id="table"></tbody>
-  </table>
-</div>
-
-<div class="card">
-  <h3>KP</h3>
-  <div id="kp"></div>
-</div>ы
 
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbxEgMZYGoh2Jx0OxQ3irGxcjxF9OrbAQS8XBrz-H0YQIJBfCXpCPjCBZB1Up3-SUEZk/exec";
-const DOCX_API = "https://script.google.com/macros/s/AKfycbysrb3s2BXHrT-1EXnm36ejzD5WtdVUmqorBKeextGHWYoS6cAUVA36JBoYNQgWU9fbjA/exec";
+
+const DOCX_API = "https://script.google.com/macros/s/AKfycbxtI8bv968lm4Qq19R4voRGDr6Cb_G18bqF00SNsQMELuZqA3XW8TIdnfjdyDAO2Qepug/exec";
 
 let products = [];
 let selected = [];
 
-async function load() {
-  const r = await fetch(API_URL);
-  products = await r.json();
-  render(products);
+/* LOAD */
+
+async function loadProducts(){
+
+  const res = await fetch(API_URL);
+
+  products = await res.json();
+
+  renderProducts(products);
 }
 
-function render(data) {
-  const t = document.getElementById("table");
-  t.innerHTML = "";
+/* RENDER */
 
-  data.forEach((p, i) => {
-    t.innerHTML += `
-      <tr>
-        <td>${p.ID}</td>
-        <td><img src="${p.Photo}"></td>
-        <td>${p.Name}</td>
-        <td>${p.Country}</td>
-        <td>${p.Price}</td>
-        <td><button onclick="add(${i})">+</button></td>
-      </tr>
+function renderProducts(data){
+
+  const el = document.getElementById("products");
+
+  el.innerHTML = "";
+
+  data.forEach((p,i)=>{
+
+    el.innerHTML += `
+
+      <div class="card">
+
+        <img src="${p.Photo}" />
+
+        <div class="card-body">
+
+          <div class="title">
+            ${p.Name}
+          </div>
+
+          <div class="desc">
+            ${p.Description || ""}
+          </div>
+
+          <div class="info">
+
+            <div>
+              🌍 ${p.Country}
+            </div>
+
+            <div class="price">
+              ${p.Price} UAH
+            </div>
+
+          </div>
+
+          <button class="add-btn" onclick="addProduct(${i})">
+            Додати
+          </button>
+
+        </div>
+
+      </div>
+
     `;
   });
 }
 
-function add(i) {
-  selected.push(products[i]);
+/* SEARCH */
+
+function searchProducts(){
+
+  const value = document
+    .getElementById("search")
+    .value
+    .toLowerCase();
+
+  const filtered = products.filter(p =>
+
+    (p.Name || "")
+      .toLowerCase()
+      .includes(value)
+
+  );
+
+  renderProducts(filtered);
+}
+
+/* ADD */
+
+function addProduct(index){
+
+  selected.push(products[index]);
+
   renderKP();
 }
 
-function renderKP() {
-  const el = document.getElementById("kp");
-  el.innerHTML = "";
+/* REMOVE */
 
-  selected.forEach(p => {
-    el.innerHTML += `<p><b>${p.Name}</b> | ${p.Price}</p>`;
-  });
+function removeProduct(index){
+
+  selected.splice(index,1);
+
+  renderKP();
 }
 
-window.downloadDOCX = function () {
+/* KP */
 
-const payload = encodeURIComponent(JSON.stringify(selected));
+function renderKP(){
 
-const url = `${DOCX_API}?data=${payload}`;
+  const el = document.getElementById("kpItems");
 
-// 🔥 ВАЖНО: НЕ fetch, а прямой переход
-window.open(url, "_blank");
+  const totalEl = document.getElementById("total");
+
+  if(selected.length === 0){
+
+    el.innerHTML = `
+      <div class="empty">
+        Товари ще не додані
+      </div>
+    `;
+
+    totalEl.innerHTML = "Загалом: 0 UAH";
+
+    return;
+  }
+
+  el.innerHTML = "";
+
+  let total = 0;
+
+  selected.forEach((p,i)=>{
+
+    total += Number(p.Price || 0);
+
+    el.innerHTML += `
+
+      <div class="kp-item">
+
+        <img src="${p.Photo}" />
+
+        <div class="kp-info">
+
+          <div class="kp-name">
+            ${p.Name}
+          </div>
+
+          <div>
+            ${p.Country}
+          </div>
+
+          <div class="kp-price">
+            ${p.Price} UAH
+          </div>
+
+          <button
+            class="remove-btn"
+            onclick="removeProduct(${i})"
+          >
+            Видалити
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+  });
+
+  totalEl.innerHTML = `
+    Загалом: ${total} UAH
+  `;
+}
+
+/* DOCX */
+
+window.downloadDOCX = async function(){
+
+  try{
+
+    if(selected.length === 0){
+
+      alert("Додайте товари");
+
+      return;
+    }
+
+    const payload = encodeURIComponent(
+      JSON.stringify(selected)
+    );
+
+    const res = await fetch(
+      `${DOCX_API}?data=${payload}`
+    );
+
+    const data = await res.json();
+
+    if(data.url){
+
+      window.open(data.url,"_blank");
+
+    }else{
+
+      alert("Помилка генерації документа");
+
+    }
+
+  }catch(err){
+
+    console.error(err);
+
+    alert("Помилка сервера");
+
+  }
 };
 
-load();
-
+loadProducts();
 
 </script>
 
