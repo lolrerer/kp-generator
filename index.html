@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KP Generator</title>
+
+  <style>
+    body { font-family: Arial; background:#f4f6f9; padding:20px; }
+    .card { background:#fff; padding:20px; border-radius:12px; margin-bottom:20px; }
+    table { width:100%; border-collapse:collapse; }
+    td,th { border:1px solid #ddd; padding:8px; }
+    th { background:#2563eb; color:white; }
+    img { width:70px; border-radius:8px; }
+    button { padding:8px 12px; background:#2563eb; color:#fff; border:0; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>KP Generator</h2>
+
+  <button onclick="downloadDOCX()">📄 Скачать DOCX</button>
+</div>
+
+<div class="card">
+  <h3>Товары</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Фото</th><th>Название</th><th>Страна</th><th>Цена</th><th></th>
+      </tr>
+    </thead>
+    <tbody id="table"></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h3>KP</h3>
+  <div id="kp"></div>
+</div>ы
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbxEgMZYGoh2Jx0OxQ3irGxcjxF9OrbAQS8XBrz-H0YQIJBfCXpCPjCBZB1Up3-SUEZk/exec";
+const DOCX_API = "https://script.google.com/macros/s/AKfycbysrb3s2BXHrT-1EXnm36ejzD5WtdVUmqorBKeextGHWYoS6cAUVA36JBoYNQgWU9fbjA/exec";
+
+let products = [];
+let selected = [];
+
+async function load() {
+  const r = await fetch(API_URL);
+  products = await r.json();
+  render(products);
+}
+
+function render(data) {
+  const t = document.getElementById("table");
+  t.innerHTML = "";
+
+  data.forEach((p, i) => {
+    t.innerHTML += `
+      <tr>
+        <td>${p.ID}</td>
+        <td><img src="${p.Photo}"></td>
+        <td>${p.Name}</td>
+        <td>${p.Country}</td>
+        <td>${p.Price}</td>
+        <td><button onclick="add(${i})">+</button></td>
+      </tr>
+    `;
+  });
+}
+
+function add(i) {
+  selected.push(products[i]);
+  renderKP();
+}
+
+function renderKP() {
+  const el = document.getElementById("kp");
+  el.innerHTML = "";
+
+  selected.forEach(p => {
+    el.innerHTML += `<p><b>${p.Name}</b> | ${p.Price}</p>`;
+  });
+}
+
+window.downloadDOCX = function () {
+
+const payload = encodeURIComponent(JSON.stringify(selected));
+
+const url = `${DOCX_API}?data=${payload}`;
+
+// 🔥 ВАЖНО: НЕ fetch, а прямой переход
+window.open(url, "_blank");
+};
+
+load();
+
+
+</script>
+
+</body>
+</html>
