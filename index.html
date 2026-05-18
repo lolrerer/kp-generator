@@ -471,21 +471,18 @@ function renderKP(){
   `;
 }
 
-/* DOCX */
-window.downloadDOCX = function(){
+window.downloadDOCX = function () {
 
-if(selected.length === 0){
+if (!selected.length) {
   alert("Додайте товари");
   return;
 }
 
-const payload = encodeURIComponent(
-  JSON.stringify(selected)
-);
+const payload = encodeURIComponent(JSON.stringify(selected));
 
-const url =
-  `${DOCX_API}?data=${payload}`;
+const url = DOCX_API + "?data=" + payload;
 
+// 🔥 ВАЖНО: НЕ fetch, а открытие ссылки
 window.open(url, "_blank");
 };
 
