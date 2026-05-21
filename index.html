@@ -274,7 +274,21 @@ body{
     <div class="kp-title">
       Комерційна пропозиція
     </div>
+    <div style="margin-bottom:15px; display:flex; flex-direction:column; gap:10px;">
 
+      <input
+        id="clientName"
+        placeholder="Ім'я клієнта"
+        style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
+      />
+    
+      <input
+        id="clientDate"
+        type="date"
+        style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
+      />
+    
+    </div>
     <div class="kp-items" id="kpItems">
 
       <div class="empty">
@@ -299,7 +313,7 @@ body{
 
 const API_URL = "https://script.google.com/macros/s/AKfycbxEgMZYGoh2Jx0OxQ3irGxcjxF9OrbAQS8XBrz-H0YQIJBfCXpCPjCBZB1Up3-SUEZk/exec";
 
-const DOCX_API = "https://script.google.com/macros/s/AKfycbwVRqStRwZT6zSUqrv7F0rl5i95C-eiNEn0Lyn1liuBZO5AJN0ITdd4lVeeh9GcYNlwrg/exec";
+const DOCX_API = "https://script.google.com/macros/s/AKfycbyRQjm4KM150co3rmbfydxgRBo-16UyaWbeqO2wn6ovaf5OliRuj3sCdb3hDEPcCru_WA/exec";
 
 let products = [];
 let selected = [];
@@ -473,11 +487,16 @@ function renderKP(){
 
 window.downloadDOCX = async function () {
 
-const payload = encodeURIComponent(
-  JSON.stringify(selected)
+const payload = {
+  items: selected,
+  clientName: document.getElementById("clientName").value || "Client",
+  clientDate: document.getElementById("clientDate").value || ""
+};
+
+const res = await fetch(
+  DOCX_API + "?data=" + encodeURIComponent(JSON.stringify(payload))
 );
 
-const res = await fetch(DOCX_API + "?data=" + payload);
 const data = await res.json();
 
 if (data.url) {
