@@ -471,26 +471,23 @@ function renderKP(){
   `;
 }
 
-window.downloadDOCX = async function () {
+window.downloadDOCX = function () {
 
-try {
-
-  const payload = encodeURIComponent(JSON.stringify(selected));
-
-  const res = await fetch(`${DOCX_API}?data=${payload}`);
-  const data = await res.json();
-
-  if (data.url) {
-    // 🔥 СРАЗУ ОТКРЫВАЕМ ДОКУМЕНТ
-    window.open(data.url, "_blank");
-  } else {
-    alert("Ошибка генерации документа");
-  }
-
-} catch (err) {
-  console.error(err);
-  alert("Ошибка запроса к серверу");
+if (!selected.length) {
+  alert("Додайте товари");
+  return;
 }
+
+const payload = encodeURIComponent(JSON.stringify(selected));
+
+const url = `${DOCX_API}?data=${payload}`;
+
+// 🔥 ВАЖНО:
+// НЕ fetch
+// НЕ axios
+// ТОЛЬКО window.open
+
+window.open(url, "_blank");
 };
 
 loadProducts();
