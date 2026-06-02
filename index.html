@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>KP Generator</title>
+<title>Ravita Studio</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -250,7 +250,7 @@ body{
     <div class="topbar">
 
       <div class="logo">
-        KP Generator
+        Ravita Studio
       </div>
 
       <input
@@ -333,50 +333,57 @@ async function loadProducts(){
 
 function renderProducts(data){
 
-  const el = document.getElementById("products");
+const el = document.getElementById("products");
+window._displayedProducts = data;
 
-  el.innerHTML = "";
+el.innerHTML = "";
 
-  data.forEach((p,i)=>{
+data.forEach((p,i)=>{
 
-    el.innerHTML += `
+  const existing = selected.find(
+    s => String(s.ID) === String(p.ID)
+  );
 
-      <div class="card">
+  const qty = existing ? existing.quantity : 0;
 
-        <img src="${p.Photo}" />
+  el.innerHTML += `
 
-        <div class="card-body">
+    <div class="card">
 
-          <div class="title">
-            ${p.Name}
+      <img src="${p.Photo}" />
+
+      <div class="card-body">
+
+        <div class="title">
+          ${p.Name}
+        </div>
+
+        <div class="desc">
+          ${p.Description || ""}
+        </div>
+
+        <div class="info">
+
+          <div>
+            🌍 ${p.Country}
           </div>
 
-          <div class="desc">
-            ${p.Description || ""}
+          <div class="price">
+            ${p.Price} UAH
           </div>
-
-          <div class="info">
-
-            <div>
-              🌍 ${p.Country}
-            </div>
-
-            <div class="price">
-              ${p.Price} UAH
-            </div>
-
-          </div>
-
-          <button class="add-btn" onclick="addProduct(${i})">
-            Додати
-          </button>
 
         </div>
 
+        <button class="add-btn" onclick="addProduct(${i}, window._displayedProducts || products)">
+          ${qty > 0 ? `Додано: ${qty}` : "Додати"}
+        </button>
+
       </div>
 
-    `;
-  });
+    </div>
+
+  `;
+});
 }
 
 /* SEARCH */
@@ -401,11 +408,27 @@ function searchProducts(){
 
 /* ADD */
 
-function addProduct(index){
+function addProduct(index, list){
 
-  selected.push(products[index]);
+const source = list || window._displayedProducts || products;
 
-  renderKP();
+const product = source[index];
+
+const existing = selected.find(
+  p => String(p.ID) === String(product.ID)
+);
+
+if(existing){
+  existing.quantity = Number(existing.quantity || 1) + 1;
+} else {
+  selected.push({
+    ...product,
+    quantity: 1
+  });
+}
+
+renderKP();
+renderProducts(window._displayedProducts || products);
 }
 
 /* REMOVE */
@@ -485,26 +508,44 @@ function renderKP(){
   `;
 }
 
-window.downloadDOCX = async function () {
-
-const payload = {
-  items: selected,
-  clientName: document.getElementById("clientName").value || "Client",
-  clientDate: document.getElementById("clientDate").value || ""
-};
-
-const res = await fetch(
-  DOCX_API + "?data=" + encodeURIComponent(JSON.stringify(payload))
-);
-
-const data = await res.json();
-
-if (data.url) {
-  window.open(data.url, "_blank");
-} else {
-  alert(data.error || "Ошибка генерации");
+function productFieldsForDocx(p) {
+  const title = String(p.Name || "").trim();
+  const description = String(p.Description || "").trim();
+  const countryName = String(p.Country || "").trim();
+  const country = countryName ? `країна виробник: ${countryName}` : "";
+  return { title, description, country };
 }
+
+window.downloadDOCX = async function () {
+  const payload = {
+    clientName: document.getElementById("clientName").value || "Client",
+    clientDate: document.getElementById("clientDate").value || "",
+    products: selected
+  };
+
+  const res = await fetch("http://localhost:3001/generate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const blob = await res.blob();
+
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "KP.docx";
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  window.URL.revokeObjectURL(url);
 };
+
 
 loadProducts();
 

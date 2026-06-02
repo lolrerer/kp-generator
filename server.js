@@ -1,0 +1,227 @@
+import express from "express";
+import cors from "cors";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import axios from "axios";
+import { imageSize } from "image-size";
+import Docxtemplater from "docxtemplater";
+import PizZip from "pizzip";
+import ImageModule from "docxtemplater-image-module-free";
+
+console.log("✅ THIS SERVER FILE IS RUNNING");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json({ limit: "20mb" }));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const TEMPLATE_PATH = path.join(__dirname, "templates", "template.docx");
+
+function clean(value) {
+  if (value === undefined || value === null || value === "undefined") return "";
+  return String(value).trim();
+}
+
+function normalizeTemplateXml(zip) {
+  let xml = zip.file("word/document.xml").asText();
+
+  if (xml.includes("{photo}") && !xml.includes("{%photo}")) {
+    xml = xml.replaceAll("{photo}", "{%photo}");
+  }
+
+  zip.file("word/document.xml", xml);
+
+  return zip;
+}
+function loadTemplateZip() {
+  const content = fs.readFileSync(TEMPLATE_PATH, "binary");
+  const zip = new PizZip(content);
+  return normalizeTemplateXml(zip);
+}
+
+async function fetchImageBuffer(url) {
+  const fixedUrl = url.replace("/upload/", "/upload/f_png/");
+  const res = await axios.get(fixedUrl, {
+    responseType: "arraybuffer",
+    timeout: 20000,
+  });
+
+  return Buffer.from(res.data);
+}
+
+async function prefetchImages(products) {
+  const cache = new Map();
+
+  for (const p of products) {
+    if (!p.photo) continue;
+
+    try {
+      const buffer = await fetchImageBuffer(p.photo);
+      cache.set(p.photo, buffer);
+    } catch (err) {
+      console.warn("⚠️ Image error:", p.photo, err.message);
+    }
+  }
+
+  return cache;
+}
+
+function buildImageModule(imageCache) {
+  return new ImageModule({
+    centered: false,
+
+    getImage(tagValue) {
+      return imageCache.get(tagValue) || Buffer.alloc(0);
+    },
+
+    getSize(img) {
+      if (!img || !img.length) return [1, 1];
+
+      try {
+        const dim = imageSize(img);
+        const max = 140;
+
+        let w = dim.width || max;
+        let h = dim.height || max;
+
+        const scale = max / Math.max(w, h);
+
+        if (scale < 1) {
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+
+        return [w, h];
+      } catch {
+        return [80, 80];
+      }
+    },
+  });
+}
+
+function formatDate(value) {
+  if (!value) return new Date().toLocaleDateString("uk-UA");
+
+  const d = new Date(value);
+
+  if (Number.isNaN(d.getTime())) return value;
+
+  return d.toLocaleDateString("uk-UA");
+}
+
+app.post("/generate", async (req, res) => {
+  try {
+    console.log("🔥 /generate CALLED");
+    console.log("BODY:", JSON.stringify(req.body, null, 2));
+
+    const { clientName, clientDate } = req.body;
+
+    const rawProducts = req.body.products || req.body.items || [];
+
+    console.log("RAW PRODUCTS:");
+    console.log(JSON.stringify(rawProducts, null, 2));
+
+    if (!fs.existsSync(TEMPLATE_PATH)) {
+      return res.status(500).json({
+        error: `Template not found: ${TEMPLATE_PATH}`,
+      });
+    }
+
+    const products = rawProducts.map((p, i) => {
+      const title = clean(
+        p.title ||
+        p.name ||
+        p.Name ||
+        p["Найменування товару, модель, виробник"]
+      );
+
+      const description = clean(
+        p.description ||
+        p.Description
+      );
+
+      const countryName = clean(
+        p.country ||
+        p.Country
+      );
+
+      const photo = clean(
+        p.photo ||
+        p.Photo
+      );
+
+      return {
+        index: String(i + 1),
+        title,
+        description,
+        country: countryName ? `Країна виробник: ${countryName}` : "",
+        photo,
+        quantity: clean(p.quantity || p.Quantity || p["Кіль-кість"] || 1),
+        price: clean(p.price || p.Price),
+      };
+    });
+
+    console.log("MAPPED PRODUCTS:");
+    console.log(JSON.stringify(products, null, 2));
+
+    const imageCache = await prefetchImages(products);
+    const imageModule = buildImageModule(imageCache);
+
+    const zip = loadTemplateZip();
+
+    const doc = new Docxtemplater(zip, {
+      modules: [imageModule],
+      paragraphLoop: true,
+      linebreaks: true,
+      nullGetter() {
+        return "";
+      },
+    });
+
+    doc.render({
+      clientName: clientName || "Клієнт",
+      clientDate: formatDate(clientDate),
+      products,
+    });
+
+    const buffer = doc.getZip().generate({
+      type: "nodebuffer",
+      compression: "DEFLATE",
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="KP.docx"'
+    );
+
+    res.send(buffer);
+
+  } catch (err) {
+    console.error("❌ FULL ERROR:", err);
+
+    const details =
+      err.properties?.errors?.map((e) => e.message).join("; ") ||
+      err.message;
+
+    res.status(500).json({
+      error: details,
+    });
+  }
+});
+
+const server = app.listen(3001, () => {
+  console.log("🚀 Server running on http://localhost:3001");
+});
+
+server.on("error", (err) => {
+  console.error("❌ SERVER ERROR:", err);
+});
