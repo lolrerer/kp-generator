@@ -288,6 +288,17 @@ body{
         style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
       />
     
+      <input
+        id="managerPhone"
+        placeholder="Телефон менеджера"
+        style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
+      />
+
+      <input
+       id="managerEmail"
+       placeholder="Email менеджера"
+       style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
+      />
     </div>
     <div class="kp-items" id="kpItems">
 
@@ -520,6 +531,8 @@ window.downloadDOCX = async function () {
   const payload = {
     clientName: document.getElementById("clientName").value || "Client",
     clientDate: document.getElementById("clientDate").value || "",
+    managerPhone: document.getElementById("managerPhone").value || "",
+    managerEmail: document.getElementById("managerEmail").value || "",
     products: selected
   };
 
