@@ -113,12 +113,23 @@ function formatDate(value) {
   return d.toLocaleDateString("uk-UA");
 }
 
+function formatPrice(value) {
+  const number = Number(String(value).replace(/\s/g, ""));
+
+  if (Number.isNaN(number)) {
+    return value ? String(value) : "";
+  }
+
+  return number.toLocaleString("uk-UA").replace(/\u00A0/g, " ");
+}
+
+
 app.post("/generate", async (req, res) => {
   try {
     console.log("🔥 /generate CALLED");
     console.log("BODY:", JSON.stringify(req.body, null, 2));
 
-    const { clientName, clientDate } = req.body;
+    const { clientName, clientDate, managerPhone, managerEmail } = req.body;
 
     const rawProducts = req.body.products || req.body.items || [];
 
@@ -161,7 +172,7 @@ app.post("/generate", async (req, res) => {
         country: countryName ? `Країна виробник: ${countryName}` : "",
         photo,
         quantity: clean(p.quantity || p.Quantity || p["Кіль-кість"] || 1),
-        price: clean(p.price || p.Price),
+        price: formatPrice(p.price || p.Price),
       };
     });
 
@@ -185,6 +196,8 @@ app.post("/generate", async (req, res) => {
     doc.render({
       clientName: clientName || "Клієнт",
       clientDate: formatDate(clientDate),
+      managerPhone: managerPhone || "",
+      managerEmail: managerEmail || "",
       products,
     });
 
