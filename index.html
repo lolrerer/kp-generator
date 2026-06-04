@@ -255,6 +255,12 @@ body{
   font-weight:700;
 }
 
+.kp-qty{
+  margin-top:5px;
+  font-size:14px;
+  font-weight:700;
+  color:#16a34a;
+}
 
 .empty{
   color:#94a3b8;
@@ -564,6 +570,10 @@ function renderKP(){
 
           <div class="kp-price">
             ${p.Price} UAH
+          </div>
+          
+          <div class="kp-qty">
+            Кількість у КП: ${p.quantity || 1}
           </div>
 
           <button
