@@ -196,9 +196,7 @@ body{
 }
 
 .total{
-  margin-top:20px;
-  font-size:22px;
-  font-weight:700;
+  display:none;
 }
 
 .download-btn{
@@ -218,6 +216,45 @@ body{
 .download-btn:hover{
   background:#15803d;
 }
+
+.logo-img{
+  max-height:50px;
+  max-width:180px;
+  object-fit:contain;
+}
+
+.card-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:12px;
+}
+
+.qty-btn{
+  width:38px;
+  height:38px;
+  border:none;
+  border-radius:10px;
+  background:#e2e8f0;
+  font-size:20px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.qty-value{
+  min-width:34px;
+  text-align:center;
+  font-weight:700;
+  font-size:16px;
+}
+
+.added-badge{
+  margin-top:10px;
+  font-size:14px;
+  color:#16a34a;
+  font-weight:700;
+}
+
 
 .empty{
   color:#94a3b8;
@@ -250,7 +287,7 @@ body{
     <div class="topbar">
 
       <div class="logo">
-        Ravita Studio
+        <img src="assets/logo.png" alt="Ravita Studio" class="logo-img">
       </div>
 
       <input
@@ -384,10 +421,14 @@ data.forEach((p,i)=>{
           </div>
 
         </div>
+        
+        <div class="card-actions">
+          <button class="qty-btn" onclick="removeOneProduct(${i}, window._displayedProducts || products)">−</button>
+          <div class="qty-value">${qty}</div>
+          <button class="qty-btn" onclick="addProduct(${i}, window._displayedProducts || products)">+</button>
+        </div>
 
-        <button class="add-btn" onclick="addProduct(${i}, window._displayedProducts || products)">
-          ${qty > 0 ? `Додано: ${qty}` : "Додати"}
-        </button>
+        ${qty > 0 ? `<div class="added-badge">Додано в КП: ${qty}</div>` : ""}
 
       </div>
 
@@ -436,6 +477,31 @@ if(existing){
     ...product,
     quantity: 1
   });
+}
+
+
+
+renderKP();
+renderProducts(window._displayedProducts || products);
+}
+
+function removeOneProduct(index, list){
+
+const source = list || window._displayedProducts || products;
+const product = source[index];
+
+const existingIndex = selected.findIndex(
+  p => String(p.ID) === String(product.ID)
+);
+
+if(existingIndex === -1){
+  return;
+}
+
+selected[existingIndex].quantity = Number(selected[existingIndex].quantity || 1) - 1;
+
+if(selected[existingIndex].quantity <= 0){
+  selected.splice(existingIndex, 1);
 }
 
 renderKP();
