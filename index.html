@@ -133,7 +133,6 @@ body{
 }
 
 /* RIGHT */
-
 .right{
   width:30%;
   background:white;
@@ -141,8 +140,10 @@ body{
   padding:30px;
   display:flex;
   flex-direction:column;
+  height:100vh;
+  position:sticky;
+  top:0;
 }
-
 .kp-title{
   font-size:24px;
   font-weight:700;
@@ -152,6 +153,7 @@ body{
 .kp-items{
   flex:1;
   overflow:auto;
+  margin-bottom:15px;
 }
 
 .kp-item{
@@ -263,6 +265,32 @@ body{
   color:#16a34a;
 }
 
+.download-btn.loading{
+  opacity:0.75;
+  cursor:not-allowed;
+}
+
+.spinner{
+  display:inline-block;
+  width:16px;
+  height:16px;
+  border:2px solid rgba(0,0,0,0.25);
+  border-top-color:#000;
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  vertical-align:middle;
+  margin-right:8px;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+
+
+
 .empty{
   color:#94a3b8;
 }
@@ -360,7 +388,7 @@ body{
       Загалом: 0 UAH
     </div>
 
-    <button class="download-btn" onclick="downloadDOCX()">
+    <button id="downloadBtn" class="download-btn" onclick="downloadDOCX()"></button>
       📄 Завантажити DOCX
     </button>
 
@@ -673,36 +701,61 @@ function productFieldsForDocx(p) {
 }
 
 window.downloadDOCX = async function () {
-  const payload = {
-    clientName: document.getElementById("clientName").value || "Client",
-    clientDate: document.getElementById("clientDate").value || "",
-    managerPhone: managers[document.getElementById("managerSelect").value]?.Phone || "",
-    managerEmail: managers[document.getElementById("managerSelect").value]?.Email || "",
-    managerName: managers[document.getElementById("managerSelect").value]?.Name || "",
-    products: selected
-  };
+  const btn = document.getElementById("downloadBtn");
 
-  const res = await fetch("https://kp-backend-oex4.onrender.com/generate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
+  if (btn.disabled) {
+    return;
+  }
 
-  const blob = await res.blob();
+  btn.disabled = true;
+  btn.classList.add("loading");
+  btn.innerHTML = `<span class="spinner"></span> Генерується...`;
 
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  try {
+    const payload = {
+      clientName: document.getElementById("clientName").value || "Client",
+      clientDate: document.getElementById("clientDate").value || "",
+      managerPhone: managers[document.getElementById("managerSelect").value]?.Phone || "",
+      managerEmail: managers[document.getElementById("managerSelect").value]?.Email || "",
+      managerName: managers[document.getElementById("managerSelect").value]?.Name || "",
+      products: selected
+    };
 
-  a.href = url;
-  a.download = "KP.docx";
+    const res = await fetch("https://kp-backend-oex4.onrender.com/generate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
 
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+    if (!res.ok) {
+      alert("Помилка генерації КП");
+      return;
+    }
 
-  window.URL.revokeObjectURL(url);
+    const blob = await res.blob();
+
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = url;
+    a.download = "KP.docx";
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+
+  } catch (err) {
+    alert("Помилка генерації КП");
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove("loading");
+    btn.innerHTML = "📄 Завантажити DOCX";
+  }
 };
 
 
