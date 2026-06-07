@@ -115,7 +115,6 @@ body{
   color:#005a71
 }
 
-
 .add-btn{
   width:100%;
   padding:12px;
@@ -332,19 +331,23 @@ body{
         type="date"
         style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
       />
-    
-      <input
-        id="managerPhone"
-        placeholder="Телефон менеджера"
-        style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
-      />
-
-      <input
-       id="managerEmail"
-       placeholder="Email менеджера"
+      <select
+       id="managerSelect"
        style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;"
-      />
-    </div>
+>
+      <option value="">Оберіть менеджера</option>
+    </select>
+
+    <div
+       id="managerInfo"
+       style="
+        margin-top:10px;
+        font-size:14px;
+       color:#64748b;
+    "
+    ></div>
+</div>
+    
     <div class="kp-items" id="kpItems">
 
       <div class="empty">
@@ -371,10 +374,74 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxEgMZYGoh2Jx0OxQ3irGxc
 
 const DOCX_API = "https://script.google.com/macros/s/AKfycbyRQjm4KM150co3rmbfydxgRBo-16UyaWbeqO2wn6ovaf5OliRuj3sCdb3hDEPcCru_WA/exec";
 
+const MANAGERS_URL = "https://docs.google.com/spreadsheets/d/16OXwg6Et1-lX9f3MBwtc7oOzPryMENE61s6cviBSPks/export?format=csv";
+
+let managers = [];
 let products = [];
 let selected = [];
 
 /* LOAD */
+
+
+
+
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  const headers = lines[0].split(",").map(h => h.trim());
+
+  return lines.slice(1).map(line => {
+    const values = line.split(",").map(v => v.trim());
+    const obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h] = values[i] || "";
+    });
+
+    return obj;
+  });
+}
+
+async function loadManagers() {
+  const res = await fetch(MANAGERS_URL);
+  const csv = await res.text();
+
+  managers = parseCSV(csv).filter(m =>
+    String(m.Active).toLowerCase() === "true"
+  );
+
+  const select = document.getElementById("managerSelect");
+
+  select.innerHTML = `<option value="">Оберіть менеджера</option>`;
+
+  managers.forEach((m, i) => {
+    select.innerHTML += `
+      <option value="${i}">
+        ${m.Name}
+      </option>
+    `;
+  });
+}
+
+document.addEventListener("change", function(e) {
+  if (e.target.id === "managerSelect") {
+    const manager = managers[e.target.value];
+
+    const info = document.getElementById("managerInfo");
+
+    if (!manager) {
+      info.innerHTML = "";
+      return;
+    }
+
+    info.innerHTML = `
+      📞 ${manager.Phone}<br>
+      ✉️ ${manager.Email}
+    `;
+  }
+});
+
+
+
 
 async function loadProducts(){
 
@@ -609,8 +676,9 @@ window.downloadDOCX = async function () {
   const payload = {
     clientName: document.getElementById("clientName").value || "Client",
     clientDate: document.getElementById("clientDate").value || "",
-    managerPhone: document.getElementById("managerPhone").value || "",
-    managerEmail: document.getElementById("managerEmail").value || "",
+    managerPhone: managers[document.getElementById("managerSelect").value]?.Phone || "",
+    managerEmail: managers[document.getElementById("managerSelect").value]?.Email || "",
+    managerName: managers[document.getElementById("managerSelect").value]?.Name || "",
     products: selected
   };
 
@@ -639,6 +707,7 @@ window.downloadDOCX = async function () {
 
 
 loadProducts();
+loadManagers();
 
 </script>
 
