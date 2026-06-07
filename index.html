@@ -204,7 +204,8 @@ body{
 .download-btn{
   margin-top:20px;
   width:100%;
-  padding:16px;
+  min-height:56px;
+  padding:0 16px;
   border:none;
   border-radius:16px;
   background:#f8b238;
@@ -213,6 +214,13 @@ body{
   font-weight:700;
   cursor:pointer;
   transition:.2s;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  text-align:center;
+  line-height:1;
 }
 
 .download-btn:hover{
@@ -278,8 +286,7 @@ body{
   border-top-color:#000;
   border-radius:50%;
   animation:spin .8s linear infinite;
-  vertical-align:middle;
-  margin-right:8px;
+  flex-shrink:0;
 }
 
 @keyframes spin{
@@ -388,7 +395,7 @@ body{
       Загалом: 0 UAH
     </div>
 
-    <button id="downloadBtn" class="download-btn" onclick="downloadDOCX()"></button>
+    <button id="downloadBtn" class="download-btn" onclick="downloadDOCX()">
       📄 Завантажити DOCX
     </button>
 
