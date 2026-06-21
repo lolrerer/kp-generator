@@ -385,7 +385,17 @@
         <select id="managerSelect" style="padding:10px;border:1px solid #e2e8f0;border-radius:10px;">
           <option value="">Оберіть менеджера</option>
         </select>
-
+        
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;">
+          <input type="checkbox" id="deliveryCheckbox">
+          Включити доставку та налаштування
+        </label>
+        
+        <div id="managerInfo" style="
+          margin-top:10px;
+          font-size:14px;
+          color:#64748b;
+        "></div>
         <div id="managerInfo" style="
           margin-top:10px;
           font-size:14px;
@@ -785,6 +795,10 @@
           managerPhone: managers[document.getElementById("managerSelect").value]?.Phone || "",
           managerEmail: managers[document.getElementById("managerSelect").value]?.Email || "",
           managerName: managers[document.getElementById("managerSelect").value]?.Name || "",
+          deliveryText: document.getElementById("deliveryCheckbox").checked
+              ? "У вартість обладнання входить доставка та налаштування"
+                  : "",
+          
           products: selected.map(p => {
             const price = parsePrice(p.Price || p.price);
             const discount = normalizeDiscount(p.discount);
