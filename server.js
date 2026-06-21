@@ -26,6 +26,19 @@ function clean(value) {
   return String(value).trim();
 }
 
+function parsePrice(value) {
+  return Number(String(value || "0").replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
+}
+
+function normalizeDiscount(value) {
+  const discount = Number(value) || 0;
+  return Math.min(100, Math.max(0, discount));
+}
+
+function getDiscountedPrice(price, discount) {
+  return price - (price * discount / 100);
+}
+
 function normalizeTemplateXml(zip) {
   let xml = zip.file("word/document.xml").asText();
 
@@ -114,15 +127,14 @@ function formatDate(value) {
 }
 
 function formatPrice(value) {
-  const number = Number(String(value).replace(/\s/g, ""));
+  const number = Number(String(value || "0").replace(/[^\d.,]/g, "").replace(",", "."));
 
   if (Number.isNaN(number)) {
     return value ? String(value) : "";
   }
 
-  return number.toLocaleString("uk-UA").replace(/\u00A0/g, " ");
+  return Math.round(number).toLocaleString("uk-UA").replace(/\u00A0/g, " ") + " UAH";
 }
-
 
 app.post("/generate", async (req, res) => {
   try {
@@ -149,30 +161,46 @@ app.post("/generate", async (req, res) => {
         p.Name ||
         p["Найменування товару, модель, виробник"]
       );
-
+    
       const description = clean(
         p.description ||
         p.Description
       );
-
+    
       const countryName = clean(
         p.country ||
         p.Country
       );
-
+    
       const photo = clean(
         p.photo ||
         p.Photo
       );
-
+    
+      const quantity = Number(p.quantity || p.Quantity || p["Кіль-кість"] || 1);
+      const priceNumber = parsePrice(p.price || p.Price || p.priceOriginal);
+      const discount = normalizeDiscount(p.discount);
+      const priceWithDiscountNumber = getDiscountedPrice(priceNumber, discount);
+    
       return {
         index: String(i + 1),
         title,
         description,
         country: countryName ? `Країна виробник: ${countryName}` : "",
         photo,
-        quantity: clean(p.quantity || p.Quantity || p["Кіль-кість"] || 1),
-        price: formatPrice(p.price || p.Price),
+    
+        quantity,
+    
+        price: formatPrice(priceNumber),
+        priceOriginal: formatPrice(priceNumber),
+    
+        discount,
+        discountLabel: discount > 0 ? discount + "%" : "",
+    
+        priceWithDiscount: discount > 0 ? formatPrice(priceWithDiscountNumber) : "",
+        finalPrice: formatPrice(priceWithDiscountNumber),
+    
+        total: formatPrice(priceWithDiscountNumber * quantity)
       };
     });
 
