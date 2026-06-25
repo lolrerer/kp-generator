@@ -31,7 +31,7 @@ function parsePrice(value) {
 }
 
 function normalizeDiscount(value) {
-  const discount = Number(value) || 0;
+  const discount = Number(String(value).replace(",", ".")) || 0;
   return Math.min(100, Math.max(0, discount));
 }
 
@@ -141,7 +141,7 @@ app.post("/generate", async (req, res) => {
     console.log("🔥 /generate CALLED");
     console.log("BODY:", JSON.stringify(req.body, null, 2));
 
-    const { clientName, clientDate, managerPhone, managerEmail, managerName, deliveryText} = req.body;
+    const { clientName, clientDate, managerPhone, managerEmail, managerName, deliveryText } = req.body;
 
     const rawProducts = req.body.products || req.body.items || [];
 
@@ -161,45 +161,46 @@ app.post("/generate", async (req, res) => {
         p.Name ||
         p["Найменування товару, модель, виробник"]
       );
-    
+
       const description = clean(
         p.description ||
         p.Description
       );
-    
+
       const countryName = clean(
         p.country ||
         p.Country
       );
-    
+
       const photo = clean(
         p.photo ||
         p.Photo
       );
-    
+
       const quantity = Number(p.quantity || p.Quantity || p["Кіль-кість"] || 1);
       const priceNumber = parsePrice(p.price || p.Price || p.priceOriginal);
       const discount = normalizeDiscount(p.discount);
       const priceWithDiscountNumber = getDiscountedPrice(priceNumber, discount);
-    
+
       return {
         index: String(i + 1),
         title,
         description,
         country: countryName ? `Країна виробник: ${countryName}` : "",
         photo,
-    
+
         quantity,
-    
+
         price: formatPrice(priceNumber),
         priceOriginal: formatPrice(priceNumber),
-    
+
         discount,
+        discountText: discount > 0 ? "Знижка" : "",
         discountLabel: discount > 0 ? discount + "%" : "",
-    
+
         priceWithDiscount: discount > 0 ? formatPrice(priceWithDiscountNumber) : "",
         finalPrice: formatPrice(priceWithDiscountNumber),
-    
+
         total: formatPrice(priceWithDiscountNumber * quantity)
       };
     });
