@@ -141,7 +141,7 @@ app.post("/generate", async (req, res) => {
     console.log("🔥 /generate CALLED");
     console.log("BODY:", JSON.stringify(req.body, null, 2));
 
-    const { clientName, clientDate, managerPhone, managerEmail, managerName, deliveryText } = req.body;
+    const { clientName, clientDate, managerPhone, managerEmail, managerName, deliveryText, installmentText,longInstallmentText } = req.body;
 
     const rawProducts = req.body.products || req.body.items || [];
 
@@ -237,6 +237,8 @@ app.post("/generate", async (req, res) => {
       managerEmail: managerEmail || "",
       managerName: managerName || "",
       deliveryText: deliveryText || "",
+      installmentText: installmentText || "",
+      longInstallmentText: longInstallmentText || "",
       products,
     });
 
