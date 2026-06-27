@@ -195,13 +195,21 @@ app.post("/generate", async (req, res) => {
         priceOriginal: formatPrice(priceNumber),
 
         discount,
-        discountText: discount > 0 ? "Знижка" : "",
+        showDiscount: discount > 0,
         discountLabel: discount > 0 ? discount + "%" : "",
 
         priceWithDiscount: discount > 0 ? formatPrice(priceWithDiscountNumber) : "",
         finalPrice: formatPrice(priceWithDiscountNumber),
 
-        total: formatPrice(priceWithDiscountNumber * quantity)
+        total: formatPrice(priceWithDiscountNumber * quantity),
+
+        discountRows: discount > 0
+          ? [{
+            discountText: "Знижка",
+            discountLabel: discount + "%",
+            priceWithDiscount: formatPrice(priceWithDiscountNumber)
+          }]
+          : []
       };
     });
 
