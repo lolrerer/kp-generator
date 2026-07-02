@@ -141,7 +141,7 @@ app.post("/generate", async (req, res) => {
     console.log("🔥 /generate CALLED");
     console.log("BODY:", JSON.stringify(req.body, null, 2));
 
-    const { clientName, clientDate, managerPhone, managerEmail, managerName, deliveryText, installmentText,longInstallmentText } = req.body;
+    const { clientName, clientDate, managerPhone, managerEmail, managerName, deliveryText, installmentText, longInstallmentText } = req.body;
 
     const rawProducts = req.body.products || req.body.items || [];
 
@@ -231,18 +231,22 @@ app.post("/generate", async (req, res) => {
         return "";
       },
     });
-    const grandTotalNumber = products.reduce((sum, p) => {
-      const numeric = Number(
-        String(p.total)
-          .replace(/[^\d.,]/g, "")
-          .replace(",", ".")
-      );
-    
-      return sum + (isNaN(numeric) ? 0 : numeric);
-    }, 0);
 
-    const grandTotal = formatPrice(grandTotalNumber);
+    let grandTotal = "";
 
+    if (grandTotalEnabled) {
+      const grandTotalNumber = products.reduce((sum, p) => {
+        const numeric = Number(
+          String(p.total)
+            .replace(/[^\d.,]/g, "")
+            .replace(",", ".")
+        );
+
+        return sum + (isNaN(numeric) ? 0 : numeric);
+      }, 0);
+
+      grandTotal = formatPrice(grandTotalNumber);
+    }
 
     doc.render({
       clientName: clientName || "Клієнт",
