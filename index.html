@@ -476,7 +476,7 @@
       }
 
       window.updateDiscount = function (index, value) {
-        selected[index].discount = normalizeDiscount(value);
+        selected[index].discount = (value);
       };
 
 
@@ -720,7 +720,7 @@
 
           const quantity = Number(p.quantity || 1);
           const price = parsePrice(p.Price || p.price);
-          const discount = normalizeDiscount(p.discount);
+          const discount = Number(p.discount || 0);
           const priceWithDiscount = getDiscountedPrice(price, discount);
           const itemTotal = priceWithDiscount * quantity;
 
@@ -763,7 +763,7 @@
                     type="text"
                     inputmode="decimal"
                     placeholder="0"
-                    value="${discount || ""}"
+                    value="${p.discount ?? ""}"
                     oninput="updateDiscount(${i}, this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'))"
                     onblur="renderKP()"
                     class="discount-input"
@@ -838,7 +838,7 @@
 
             products: selected.map(p => {
               const price = parsePrice(p.Price || p.price);
-              const discount = normalizeDiscount(p.discount);
+              const discount = Number(p.discount || 0);
               const priceWithDiscount = getDiscountedPrice(price, discount);
 
               return {
