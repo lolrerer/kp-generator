@@ -300,12 +300,15 @@
       font-weight: 700;
       color: #64748b;
     }
-      .kp-discount-price {
-        margin-top: 4px;
-        color: #005a71;
-        font-size: 14px;
-        font-weight: 800;
-      }
+
+
+    
+        .kp-discount-price {
+          margin-top: 4px;
+          color: #005a71;
+          font-size: 14px;
+          font-weight: 800;
+        }
 
       .kp-qty {
         margin-top: 5px;
@@ -408,6 +411,10 @@
           <label style="display:flex;align-items:center;gap:8px;font-size:14px;">
             <input type="checkbox" id="longInstallmentCheckbox">
             Довга розстрочка
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;">
+            <input type="checkbox" id="grandTotalCheckbox">
+            Показувати загальну суму (Grand Total)
           </label>
 
 
@@ -814,6 +821,7 @@
         try {
           const payload = {
             clientName: document.getElementById("clientName").value || "Client",
+            grandTotalEnabled: document.getElementById("grandTotalCheckbox").checked,
             clientDate: document.getElementById("clientDate").value || "",
             managerPhone: managers[document.getElementById("managerSelect").value]?.Phone || "",
             managerEmail: managers[document.getElementById("managerSelect").value]?.Email || "",
