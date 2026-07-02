@@ -231,9 +231,20 @@ app.post("/generate", async (req, res) => {
         return "";
       },
     });
+    const grandTotalNumber = products.reduce((sum, p) => {
+      const numeric = Number(
+        String(p.total)
+          .replace(/[^\d.,]/g, "")
+          .replace(",", ".")
+      );
+    
+      return sum + (isNaN(numeric) ? 0 : numeric);
+    }, 0);
+
+    const grandTotal = formatPrice(grandTotalNumber);
+
 
     doc.render({
-      grandTotal: formatPrice(total),
       clientName: clientName || "Клієнт",
       clientDate: formatDate(clientDate),
       managerPhone: managerPhone || "",
@@ -243,6 +254,7 @@ app.post("/generate", async (req, res) => {
       installmentText: installmentText || "",
       longInstallmentText: longInstallmentText || "",
       products,
+      grandTotal,
     });
 
     const buffer = doc.getZip().generate({
