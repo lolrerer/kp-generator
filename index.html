@@ -764,7 +764,7 @@
                     inputmode="decimal"
                     placeholder="0"
                     value="${p.discount ?? ""}"
-                    oninput="updateDiscount(${i}, this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1'))"
+                    oninput="updateDiscount(${i}, this.value)"
                     onblur="renderKP()"
                     class="discount-input"
                 />  
