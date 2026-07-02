@@ -162,10 +162,6 @@ app.post("/generate", async (req, res) => {
         p["Найменування товару, модель, виробник"]
       );
 
-      const grandTotal = products.reduce((sum, p) => {
-        const value = Number(String(p.total).replace(/[^\d]/g, ""));
-        return sum + value;
-      }, 0);
 
 
       const description = clean(
@@ -237,7 +233,7 @@ app.post("/generate", async (req, res) => {
     });
 
     doc.render({
-      grandTotal: formatPrice(grandTotal),
+      grandTotal: formatPrice(total),
       clientName: clientName || "Клієнт",
       clientDate: formatDate(clientDate),
       managerPhone: managerPhone || "",
