@@ -241,13 +241,12 @@ app.post("/generate", async (req, res) => {
             .replace(/[^\d.,]/g, "")
             .replace(",", ".")
         );
-
+    
         return sum + (isNaN(numeric) ? 0 : numeric);
       }, 0);
-
-      grandTotal = formatPrice(grandTotalNumber);
+    
+      grandTotal = `Загальна вартість комерційної пропозиції: ${formatPrice(grandTotalNumber)}`;
     }
-
     doc.render({
       clientName: clientName || "Клієнт",
       clientDate: formatDate(clientDate),
