@@ -561,7 +561,74 @@
     let selected = [];
 
     /* LOAD */
+    async function login(){
 
+    const username =
+      document.getElementById("login").value.trim();
+
+    const password =
+      document.getElementById("password").value.trim();
+
+
+    try {
+
+      const response = await fetch(
+        "https://kp-backend-oex4.onrender.com/login",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":"application/json"
+          },
+
+          body: JSON.stringify({
+            username,
+            password
+          })
+        }
+      );
+
+
+      const data = await response.json();
+
+
+      if(data.success){
+
+        localStorage.setItem(
+          "logged",
+          "true"
+        );
+
+
+        document.getElementById("loginPage").style.display="none";
+
+        document.getElementById("app").style.display="block";
+
+
+        loadProducts();
+        loadManagers();
+
+
+      }else{
+
+
+        document.getElementById("loginError").innerHTML =
+        "Невірний логін або пароль";
+
+
+      }
+
+
+    } catch(error){
+
+      console.error(error);
+
+      document.getElementById("loginError").innerHTML =
+      "Помилка сервера";
+
+    }
+
+    }
     function parsePrice(value) {
       return Number(String(value || "0").replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
     }
@@ -1006,6 +1073,14 @@
       }
     };
 
+      const USERS = {
+    DAO: "info06",
+    MAV: "mamed6",
+    GMO: "masha"
+  };
+
+
+
   if(localStorage.getItem("logged")==="true"){
 
         document.getElementById("loginPage").style.display="none";
@@ -1017,8 +1092,6 @@
     document.getElementById("app").style.display="none";
 
     }
-    loadProducts();
-    loadManagers();
 
   </script>
   </div>
