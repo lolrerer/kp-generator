@@ -18,6 +18,11 @@ app.use(express.json({ limit: "20mb" }));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const USERS = {
+  DAO: "info06",
+  MAV: "mamed6",
+  GMO: "masha"
+};
 
 const TEMPLATE_PATH = path.join(__dirname, "templates", "template.docx");
 
@@ -26,6 +31,26 @@ function clean(value) {
   return String(value).trim();
 }
 
+function login(){
+
+  const login = document.getElementById("login").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if(USERS[login] && USERS[login] === password){
+
+      localStorage.setItem("logged","true");
+
+      document.getElementById("loginPage").style.display="none";
+      document.getElementById("app").style.display="block";
+
+  }else{
+
+      document.getElementById("loginError").innerHTML =
+          "Невірний логін або пароль";
+
+  }
+
+}
 function parsePrice(value) {
   return Number(String(value || "0").replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
 }
