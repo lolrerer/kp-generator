@@ -31,26 +31,29 @@ function clean(value) {
   return String(value).trim();
 }
 
-function login(){
 
-  const login = document.getElementById("login").value.trim();
-  const password = document.getElementById("password").value.trim();
+app.post("/login", (req, res) => {
 
-  if(USERS[login] && USERS[login] === password){
+  const { username, password } = req.body;
 
-      localStorage.setItem("logged","true");
 
-      document.getElementById("loginPage").style.display="none";
-      document.getElementById("app").style.display="block";
+  if (
+    USERS[username] &&
+    USERS[username] === password
+  ) {
 
-  }else{
-
-      document.getElementById("loginError").innerHTML =
-          "Невірний логін або пароль";
+    return res.json({
+      success: true
+    });
 
   }
 
-}
+
+  return res.json({
+    success: false
+  });
+
+});
 function parsePrice(value) {
   return Number(String(value || "0").replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
 }
