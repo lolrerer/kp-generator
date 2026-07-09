@@ -342,6 +342,69 @@
 
 
 
+   .login-page{
+      width:100%;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#f8fafc;
+  }
+
+  .login-card{
+      width:380px;
+      background:#fff;
+      padding:40px;
+      border-radius:18px;
+      box-shadow:0 15px 40px rgba(0,0,0,.08);
+      text-align:center;
+  }
+
+  .login-logo{
+      width:140px;
+      margin-bottom:20px;
+  }
+
+  .login-card h2{
+      color:#005a71;
+      margin-bottom:8px;
+  }
+
+  .login-card p{
+      color:#64748b;
+      margin-bottom:25px;
+  }
+
+  .login-card input{
+      width:100%;
+      box-sizing:border-box;
+      padding:12px;
+      margin-bottom:15px;
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+  }
+
+  .login-card button{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      background:#005a71;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+      transition:.2s;
+  }
+
+  .login-card button:hover{
+      background:#00485b;
+  }
+
+  #loginError{
+      margin-top:15px;
+      color:#ff4633;
+  }
+
     .empty {
       color: #94a3b8;
     }
@@ -363,6 +426,40 @@
 
 <body>
 
+  <div id="loginPage" class="login-page">
+
+    <div class="login-card">
+  
+      <img src="logo.png" class="login-logo">
+  
+      <h2>Ravita Studio</h2>
+  
+      <p>Система формування комерційних пропозицій</p>
+  
+      <input
+        id="login"
+        type="text"
+        placeholder="Логін"
+      >
+  
+      <input
+        id="password"
+        type="password"
+        placeholder="Пароль"
+      >
+  
+      <button onclick="login()">
+        Увійти
+      </button>
+  
+      <div id="loginError"></div>
+  
+    </div>
+  
+  </div>
+
+
+<div id="app" style="display:none;">
   <div class="container">
 
     <!-- LEFT -->
@@ -909,11 +1006,22 @@
       }
     };
 
+  if(localStorage.getItem("logged")==="true"){
 
+        document.getElementById("loginPage").style.display="none";
+    document.getElementById("app").style.display="block";
+
+    }else{
+
+    document.getElementById("loginPage").style.display="flex";
+    document.getElementById("app").style.display="none";
+
+    }
     loadProducts();
     loadManagers();
 
   </script>
+  </div>
 
 </body>
 
