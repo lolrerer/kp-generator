@@ -1081,10 +1081,19 @@
 
 
 
+  const dateInput = document.getElementById("clientDate");
+
+  if (!dateInput.value) {
+    dateInput.value = new Date().toISOString().split("T")[0];
+  }
+
   if(localStorage.getItem("logged")==="true"){
 
         document.getElementById("loginPage").style.display="none";
     document.getElementById("app").style.display="block";
+
+    loadProducts();
+    loadManagers();
 
     }else{
 
