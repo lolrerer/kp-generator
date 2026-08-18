@@ -21,7 +21,8 @@ const __dirname = path.dirname(__filename);
 const USERS = {
   DAO: "info06",
   MAV: "mamed6",
-  GMO: "masha"
+  GMO: "masha",
+  MSV: "serpen6"
 };
 
 const TEMPLATE_PATH = path.join(__dirname, "templates", "template.docx");
